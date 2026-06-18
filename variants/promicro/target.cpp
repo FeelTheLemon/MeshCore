@@ -26,7 +26,12 @@ AutoDiscoverRTCClock rtc_clock(fallback_clock);
 bool radio_init() {
   rtc_clock.begin(Wire);
   
-  return radio.std_init(&SPI);
+  bool success = radio.std_init(&SPI);
+  if (success && board.rxen_controls_swctrl) {
+      // Use inverterted RF switch pins to control SW_CTRL
+      radio.setRfSwitchPins(SX126X_TXEN, SX126X_RXEN);
+  }
+  return success;
 }
 
 mesh::LocalIdentity radio_new_identity() {

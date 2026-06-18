@@ -6,7 +6,13 @@
 void PromicroBoard::begin() {    
     NRF52Board::begin();
     btn_prev_state = HIGH;
-  
+
+    // Detect Faketec pull-up on RX_EN, on DTQSYS pin is floating
+    pinMode(SX126X_RXEN, INPUT_PULLDOWN);
+    delay(1);
+    if (digitalRead(SX126X_RXEN) == LOW)
+        rxen_controls_swctrl = true;
+
     pinMode(PIN_VBAT_READ, INPUT);
 
     #ifdef BUTTON_PIN

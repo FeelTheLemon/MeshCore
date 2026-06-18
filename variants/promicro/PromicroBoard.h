@@ -29,6 +29,7 @@ public:
   PromicroBoard() : NRF52Board("ProMicro_OTA") {}
   void begin();
 
+  bool rxen_controls_swctrl = false;
   #define BATTERY_SAMPLES 8
 
   uint16_t getBattMilliVolts() override {
