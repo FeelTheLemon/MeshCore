@@ -4,7 +4,7 @@
 #include "PromicroBoard.h"
 
 void PromicroBoard::begin() {    
-    NRF52BoardDCDC::begin();
+    NRF52Board::begin();
     btn_prev_state = HIGH;
 
     // Detect Faketec pull-up on RX_EN, on DTQSYS pin is floating
