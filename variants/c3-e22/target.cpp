@@ -1,0 +1,36 @@
+#include <Arduino.h>
+#include "target.h"
+
+C3Board board;
+
+#if defined(P_LORA_SCLK)
+  static SPIClass spi;
+  RADIO_CLASS radio = new Module(P_LORA_NSS, P_LORA_DIO_1, P_LORA_RESET, P_LORA_BUSY, spi);
+#else
+  RADIO_CLASS radio = new Module(P_LORA_NSS, P_LORA_DIO_1, P_LORA_RESET, P_LORA_BUSY);
+#endif
+
+WRAPPER_CLASS radio_driver(radio, board);
+
+ESP32RTCClock fallback_clock;
+AutoDiscoverRTCClock rtc_clock(fallback_clock);
+SensorManager sensors;
+
+bool radio_init() {
+  fallback_clock.begin();
+  rtc_clock.begin(Wire);
+
+  #if defined(P_LORA_SCLK)
+  	spi.begin(P_LORA_SCLK, P_LORA_MISO, P_LORA_MOSI);
+	Serial.printf("%s:%d %s\n", __FILE__, __LINE__, "before radio.std_init");
+    return radio.std_init(&spi);
+  #else
+    return radio.std_init();
+  #endif
+}
+
+mesh::LocalIdentity radio_new_identity() {
+  RadioNoiseListener rng(radio);
+  return mesh::LocalIdentity(&rng);  // create new random identity
+}
+
